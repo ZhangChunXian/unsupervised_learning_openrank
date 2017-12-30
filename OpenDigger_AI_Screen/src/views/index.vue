@@ -45,6 +45,25 @@
                             <span class="text fw-b">{{
                                 this.$store.state.currentRepository
                             }}</span>
+                            <el-button
+                                style="
+                                    margin-left: 8px;
+                                    background-color: #4693eb;
+                                    padding: 8px;
+                                    width: 32px;
+                                    height: 32px;
+                                    transform: skewX(45deg);
+                                "
+                                size="mini"
+                                circle
+                                @click="handleRepoAIClick"
+                            >
+                                <img
+                                    src="@/assets/RepoAI_Logo.png"
+                                    style="width: 15px; height: 15px"
+                                    alt="RepoAI Logo"
+                                />
+                            </el-button>
                         </div>
                         <div
                             class="react-right mr-4 react-l-s"
@@ -188,6 +207,7 @@ import bottomLeft from "./bottomLeft";
 import bottomRight from "./bottomRight";
 import axios from "axios";
 import repoAI from "./repoAI";
+import { mapState } from "vuex";
 
 export default {
     mixins: [drawMixin],
@@ -214,7 +234,7 @@ export default {
         center,
         bottomLeft,
         bottomRight,
-        repoAI
+        repoAI,
     },
     mounted() {
         this.timeFn();
@@ -298,6 +318,14 @@ export default {
                 })
                 .catch((_) => {});
         },
+
+        handleRepoAIClick() {
+            this.$store.commit("setDrawerVisible", true);
+            let message = `该项目为https://github.com/${
+                this.$store.state.currentRepository
+            }，请给不了解该项目的用户详细介绍该项目`;
+            this.$store.dispatch("sendChatMessage", message);
+        },
     },
 };
 </script>
@@ -307,59 +335,59 @@ export default {
 
 // 添加以下样式来覆盖 el-drawer 的默认背景色
 :deep(.el-drawer) {
-  background: #121212;
-  .el-drawer__body {
-    height: 100%;
-    padding: 0;
-  }
+    background: #121212;
+    .el-drawer__body {
+        height: 100%;
+        padding: 0;
+    }
 }
 
 ::v-deep .el-drawer {
-  background: #121212;
-  .el-drawer__body {
-    height: 100%;
-    padding: 0;
-    overflow: hidden;
-  }
+    background: #121212;
+    .el-drawer__body {
+        height: 100%;
+        padding: 0;
+        overflow: hidden;
+    }
 }
 
 // 消息确认框暗黑模式
 .confirm-box {
-  background-color: #1e1e1e !important;
-  border-color: #333 !important;
-
-  &__title {
-    color: #fff !important;
-  }
-
-  &__content {
-    color: #ccc !important;
-  }
-
-  &__header {
     background-color: #1e1e1e !important;
-  }
+    border-color: #333 !important;
 
-  .el-button {
-    background: #2b2b2b !important;
-    border-color: #444 !important;
-    color: #fff !important;
-
-    &:hover {
-      background: #363636 !important;
-      border-color: #555 !important;
+    &__title {
+        color: #fff !important;
     }
 
-    &--primary {
-      background: #409EFF !important;
-      border-color: #409EFF !important;
-
-      &:hover {
-        background: #66b1ff !important;
-        border-color: #66b1ff !important;
-      }
+    &__content {
+        color: #ccc !important;
     }
-  }
+
+    &__header {
+        background-color: #1e1e1e !important;
+    }
+
+    .el-button {
+        background: #2b2b2b !important;
+        border-color: #444 !important;
+        color: #fff !important;
+
+        &:hover {
+            background: #363636 !important;
+            border-color: #555 !important;
+        }
+
+        &--primary {
+            background: #409eff !important;
+            border-color: #409eff !important;
+
+            &:hover {
+                background: #66b1ff !important;
+                border-color: #66b1ff !important;
+            }
+        }
+    }
 }
 
 // 添加关闭按钮样式
@@ -370,7 +398,7 @@ export default {
     font-size: 20px;
     color: #909399;
     z-index: 1;
-    
+
     &:hover {
         color: #fff;
     }
