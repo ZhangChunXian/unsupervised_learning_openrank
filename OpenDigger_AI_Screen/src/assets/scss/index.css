@@ -1,3 +1,4 @@
+@charset "UTF-8";
 #index {
   color: #d3d6dd;
   width: 1920px;
@@ -8,6 +9,7 @@
   transform: translate(-50%, -50%);
   transform-origin: left top;
   overflow: hidden;
+  /* 悬浮按钮样式 */
 }
 
 #index .bg {
@@ -144,4 +146,16 @@
   margin-top: 10px;
   display: grid;
   grid-template-columns: repeat(2, 50%);
+}
+
+#index .floating-button {
+  position: fixed;
+  top: 50%;
+  /* 垂直居中 */
+  right: 0px;
+  /* 距离页面右侧 20px */
+  transform: translateY(-50%);
+  /* 修正偏移，使按钮完全居中 */
+  z-index: 1000;
+  box-shadow: 0px 2px 8px rgba(0, 0, 0, 0.15);
 }
