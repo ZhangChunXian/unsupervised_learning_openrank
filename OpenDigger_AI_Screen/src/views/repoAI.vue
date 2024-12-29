@@ -2,9 +2,7 @@
     <div class="home">
         <div class="header">
             <div class="title">RepoAI</div>
-            <div class="subtitle">
-                基于大模型与RAG技术的仓库分析助手
-            </div>
+            <div class="subtitle">基于大模型与RAG技术的仓库分析助手</div>
             <!-- <div class="settings" @click="clickConfig()">
         设置
       </div> -->
@@ -86,15 +84,13 @@ export default {
                     role: "assistant",
                     content: `你好，我是基于大模型和RAG的仓库分析助手，我可以提供以下常用服务和功能，例如：
 
-1. 代码解析与解读：我可以帮助你快速理解代码仓库的结构、功能模块和关键代码逻辑，并生成详尽的文档或摘要。
+1.代码解析与解读：我可以帮助你快速理解代码仓库的结构、功能模块和关键代码逻辑，并生成详尽的文档或摘要。
 
-2. 知识检索：通过RAG（检索增强生成）技术，我能够从仓库中提取有价值的信息，例如API文档、注释、历史变更记录等，帮助你快速找到所需内容。
+2.知识检索：通过RAG（检索增强生成）技术，我能够从仓库中提取有价值的信息，例如API文档、注释、历史变更记录等，帮助你快速找到所需内容。
 
-3. 问题诊断与优化建议：如果你在仓库中遇到性能问题、代码错误或技术难题，我可以分析代码并提供解决方案或优化建议。
+3.问题诊断与优化建议：如果你在仓库中遇到性能问题、代码错误或技术难题，我可以分析代码并提供解决方案或优化建议, 同时我也会总结仓库的issue和pull request, 并给出优化建议。
 
-4. 版本控制与协作分析：我可以解析Git历史记录，帮助你了解代码变更的背景、贡献者和协作模式，为团队管理提供支持。
-
-3. 闲聊与指导：如果你在开发过程中感到困惑或需要技术支持，我们可以聊聊与你的项目相关的内容，我会尽量为你提供清晰的指导和帮助。
+4.版本控制与协作分析：我可以解析Git历史记录，帮助你了解代码变更的背景、贡献者和协作模式，为团队管理提供支持。
 
 请告诉我你需要哪方面的帮助，我会根据你的需求给出最合适的分析和建议！`,
                 },
@@ -353,21 +349,19 @@ export default {
                     font-size: 0.875rem;
                     color: #ddd;
                     line-height: 1.625;
+                    white-space: pre-wrap;
+                    word-wrap: break-word;
+                    overflow-wrap: break-word;
 
-                    code {
-                        background-color: #2a2a2a;
-                        color: #4a9eff;
-                        padding: 0.2em 0.4em;
-                        border-radius: 3px;
-                    }
-
-                    pre {
-                        background-color: #2a2a2a !important;
-                        border: 1px solid #333 !important;
-                        border-radius: 6px;
-                        padding: 1em;
+                    :deep(.markdown-ol) {
+                        list-style-type: decimal;
+                        padding-left: 1.5em;
                         margin: 1em 0;
-                        overflow-x: auto;
+
+                        li {
+                            margin-bottom: 0.5em;
+                            white-space: normal;
+                        }
                     }
                 }
             }
@@ -451,7 +445,7 @@ export default {
 
 :deep(pre),
 :deep(code) {
-    font-family: 'Fira Code', Consolas, Monaco, 'Andale Mono', monospace;
+    font-family: "Fira Code", Consolas, Monaco, "Andale Mono", monospace;
     background-color: #2a2a2a !important;
     color: #ddd !important;
     border: 1px solid #333 !important;
@@ -460,7 +454,7 @@ export default {
 :deep(a) {
     color: #4a9eff;
     text-decoration: none;
-    
+
     &:hover {
         text-decoration: underline;
     }
@@ -478,13 +472,14 @@ export default {
     border-collapse: collapse;
     width: 100%;
     margin: 1em 0;
-    
-    th, td {
+
+    th,
+    td {
         border: 1px solid #333;
         padding: 0.5em;
         background-color: #2a2a2a;
     }
-    
+
     th {
         background-color: #252525;
     }
