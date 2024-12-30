@@ -11,9 +11,10 @@ import axios from 'axios'
 
 
 export default {
-  data() {
-    return {
-      cdata: [
+  props: {
+    cdata: {
+      type: Array,
+      default: () => [
         {
           "name": "303394539",
           "value": 15.05
@@ -1771,7 +1772,9 @@ export default {
       let activityResponse = await axios.get(path + '/activity_details.json');
       let activityData = await activityResponse.data;
 
-      return this.processData(activityData);
+      const processedData = this.processData(activityData);
+      this.$emit('update-cdata', processedData);
+      return processedData;
     },
     processData(data) {
       const result = {};
