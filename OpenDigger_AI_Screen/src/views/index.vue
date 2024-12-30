@@ -308,11 +308,19 @@ export default {
 // 添加以下样式来覆盖 el-drawer 的默认背景色
 :deep(.el-drawer) {
   background: #121212;
+  .el-drawer__body {
+    height: 100%;
+    padding: 0;
+  }
 }
 
-// 如果上面的不生效，也可以尝试这种写法
 ::v-deep .el-drawer {
   background: #121212;
+  .el-drawer__body {
+    height: 100%;
+    padding: 0;
+    overflow: hidden;
+  }
 }
 
 // 消息确认框暗黑模式

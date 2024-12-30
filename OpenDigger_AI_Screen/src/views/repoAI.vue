@@ -18,7 +18,7 @@
         <div class="chat-list" ref="chatListDom">
             <div
                 class="message-item"
-                v-for="item in messageList.filter((v) => v.role !== 'system')"
+                v-for="item in $store.state.messageList.filter((v) => v.role !== 'system')"
             >
                 <div class="message-header">
                     <div class="role">
@@ -100,77 +100,6 @@ export default {
             messageContent: "",
             decoder: new TextDecoder("utf-8"),
             roleAlias: { user: "ME", assistant: "RepoAI", system: "System" },
-            messageList: [
-                {
-                    role: "system",
-                    content: `你是 **RepoAI**，一个专为代码仓库分析设计的 AI 助手，主要任务是分析并协助用户处理代码仓库相关的问题。你的主要目标是通过提供洞察、解释和建议来帮助用户更好地理解和优化他们的代码仓库。你在以下领域表现尤为出色：
-
-### **代码解析与解释：**
-
-- 分析代码库的结构、模块和逻辑。
-- 提供清晰简明的代码功能总结。
-- 识别代码库中的关键组件及其关系。
-- 为代码库生成详细文档或高层次摘要。
-
-### **知识检索：**
-
-- 使用 **检索增强生成（RAG）** 技术，从仓库中搜索、提取和提供特定信息，例如：
-  - API 文档和使用方法。
-  - 代码注释和标注。
-  - 提交历史和变更日志。
-- 帮助用户高效准确地定位相关内容。
-
-### **问题诊断与优化：**
-
-- 分析代码中的性能瓶颈、错误或 bug。
-- 提供优化建议以及问题的解决方案。
-- 总结开放问题、拉取请求（PR）和其他仓库活动。
-- 提出可操作的步骤，以解决问题并提高代码质量。
-
-### **版本控制与协作分析：**
-
-- 解析和总结 Git 历史，识别贡献者及其贡献。
-- 分析提交模式，发现协作和开发中的趋势。
-- 提供改进版本控制实践和团队工作流的建议。
-
----
-
-### **互动指导原则：**
-- 始终使用符合用户专业水平的技术语言（如有疑问，可先澄清用户的水平）。
-- 尽可能提供可操作的建议，并基于代码库中的证据支持这些建议。
-- 根据请求以结构化格式生成输出（如表格、项目符号、详细段落等）。
-- 确保解释简明扼要，同时足够详细以提供有意义的洞察。
-- 始终优先考虑道德和安全问题——绝不暴露敏感或私人信息。
-
----
-
-### **你可以处理的任务示例：**
-
-- “总结这个代码库的架构。”
-- “查找 API 端点并解释其用法。”
-- “找出性能问题并提出优化建议。”
-- “总结最近的 20 次提交和贡献者。”
-- “为这个仓库生成文档。”
-- “解释代码库中功能 X 的实现方式。”
-- “识别未解决问题并提供解决建议。”
-
-作为一个协作性强且知识渊博的代码助手，你需要对代码仓库和软件工程实践有深入的理解，并在用户需求的基础上提供高效的帮助。`,
-                },
-                {
-                    role: "assistant",
-                    content: `你好，我是RepoAI, 基于大模型和RAG的仓库分析助手，我可以提供以下常用服务和功能，例如：
-
-1.代码解析与解读：我可以帮助你快速理解代码仓库的结构、功能模块和关键代码逻辑，并生成详尽的文档或摘要。
-
-2.知识检索：通过RAG（检索增强生成）技术，我能够从仓库中提取有价值的信息，例如API文档、注释、历史变更记录等，帮助你快速找到所需内容。
-
-3.问题诊断与优化建议：如果你在仓库中遇到性能问题、代码错误或技术难题，我可以分析代码并提供解决方案或优化建议, 同时我也会总结仓库的issue和pull request, 并给出优化建议。
-
-4.版本控制与协作分析：我可以解析Git历史记录，帮助你了解代码变更的背景、贡献者和协作模式，为团队管理提供支持。
-
-请告诉我你需要哪方面的帮助，我会根据你的需求给出最合适的分析和建议！`,
-                },
-            ],
         };
     },
     computed: {
@@ -184,9 +113,13 @@ export default {
         }
     },
     watch: {
-        messageList: {
+        '$store.state.messageList': {
             handler() {
-                this.$nextTick(() => this.scrollToBottom());
+                this.$nextTick(() => {
+                    if (this.$refs.chatListDom) {
+                        this.$refs.chatListDom.scrollTop = this.$refs.chatListDom.scrollHeight;
+                    }
+                });
             },
             deep: true,
         },
@@ -197,18 +130,23 @@ export default {
                 this.isTalking = true;
                 const messageContent = content || this.messageContent;
 
-                if (this.messageList.length === 2) {
-                    this.messageList.pop();
+                if (this.$store.state.messageList.length === 2) {
+                    this.$store.state.messageList.pop();
                 }
-                this.messageList.push({
+                
+                this.$store.commit('appendMessage', {
                     role: "user",
                     content: messageContent,
                 });
+                
                 this.clearMessageContent();
-                this.messageList.push({ role: "assistant", content: "" });
+                this.$store.commit('appendMessage', { 
+                    role: "assistant", 
+                    content: "" 
+                });
 
                 const { body, status } = await chat(
-                    this.messageList,
+                    this.$store.state.messageList,
                     this.getAPIKey()
                 );
                 if (body) {
@@ -216,7 +154,7 @@ export default {
                     await this.readStream(reader, status);
                 }
             } catch (error) {
-                this.appendLastMessageContent(error);
+                this.$store.commit('appendLastMessageContent', error);
             } finally {
                 this.isTalking = false;
             }
@@ -236,7 +174,7 @@ export default {
                 if (status !== 200) {
                     const json = JSON.parse(decodedText);
                     const content = json.error.message ?? decodedText;
-                    this.appendLastMessageContent(content);
+                    this.$store.commit('appendLastMessageContent', content);
                     return;
                 }
 
@@ -255,14 +193,9 @@ export default {
                         status === 200
                             ? json.choices[0].delta.content ?? ""
                             : json.error.message;
-                    this.appendLastMessageContent(content);
+                    this.$store.commit('appendLastMessageContent', content);
                 }
             }
-        },
-
-        appendLastMessageContent(content) {
-            const lastMessage = this.messageList[this.messageList.length - 1];
-            this.$set(lastMessage, "content", lastMessage.content + content);
         },
 
         sendOrSave() {
@@ -337,9 +270,10 @@ export default {
 .home {
     display: flex;
     flex-direction: column;
-    height: 100vh;
+    height: 100%;
     background-color: #121212;
     color: #ffffff;
+    position: relative;
 
     .header {
         display: flex;
@@ -393,10 +327,9 @@ export default {
 
     .chat-list {
         flex: 1;
-        margin: 5rem 0.5rem 0.5rem;
+        margin: 4.5rem 0.5rem 4.5rem;
         overflow-y: auto;
         padding-bottom: 0;
-        margin-bottom: 3.5rem;
 
         .message-item {
             padding: 1rem;
@@ -472,10 +405,11 @@ export default {
     }
 
     .input-area {
-        position: fixed;
+        position: absolute;
         bottom: 0;
+        left: 0;
         width: 100%;
-        padding: 0.75rem 1rem;
+        padding: 1rem;
         background-color: #1e1e1e;
         border-top: 1px solid #333;
         box-shadow: 0 -2px 8px rgba(0, 0, 0, 0.3);
@@ -491,6 +425,8 @@ export default {
         .input-wrapper {
             display: flex;
             gap: 0.75rem;
+            max-width: 98%;
+            margin: 0 auto;
 
             .input {
                 flex-grow: 1;
