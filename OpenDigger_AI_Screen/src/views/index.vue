@@ -161,9 +161,16 @@
             :visible.sync="drawerVisible"
             size="30%"
             direction="rtl"
-            :before-close="handleClose"
             :close-on-click-modal="true"
         >
+            <!-- 添加关闭按钮 -->
+            <el-button
+                class="drawer-close-btn"
+                type="text"
+                icon="el-icon-close"
+                @click="drawerVisible = false"
+                circle
+            />
             <repoAI></repoAI>
         </el-drawer>
     </div>
@@ -298,4 +305,67 @@ export default {
 
 <style lang="scss" scoped>
 @import "../assets/scss/index.scss";
+
+// 添加以下样式来覆盖 el-drawer 的默认背景色
+:deep(.el-drawer) {
+  background: #121212;
+}
+
+// 如果上面的不生效，也可以尝试这种写法
+::v-deep .el-drawer {
+  background: #121212;
+}
+
+// 消息确认框暗黑模式
+.confirm-box {
+  background-color: #1e1e1e !important;
+  border-color: #333 !important;
+
+  &__title {
+    color: #fff !important;
+  }
+
+  &__content {
+    color: #ccc !important;
+  }
+
+  &__header {
+    background-color: #1e1e1e !important;
+  }
+
+  .el-button {
+    background: #2b2b2b !important;
+    border-color: #444 !important;
+    color: #fff !important;
+
+    &:hover {
+      background: #363636 !important;
+      border-color: #555 !important;
+    }
+
+    &--primary {
+      background: #409EFF !important;
+      border-color: #409EFF !important;
+
+      &:hover {
+        background: #66b1ff !important;
+        border-color: #66b1ff !important;
+      }
+    }
+  }
+}
+
+// 添加关闭按钮样式
+.drawer-close-btn {
+    position: absolute;
+    right: 20px;
+    top: 20px;
+    font-size: 20px;
+    color: #909399;
+    z-index: 1;
+    
+    &:hover {
+        color: #fff;
+    }
+}
 </style>

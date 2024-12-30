@@ -394,6 +394,9 @@ export default {
     .chat-list {
         flex: 1;
         margin: 5rem 0.5rem 0.5rem;
+        overflow-y: auto;
+        padding-bottom: 0;
+        margin-bottom: 3.5rem;
 
         .message-item {
             padding: 1rem;
@@ -469,13 +472,14 @@ export default {
     }
 
     .input-area {
-        position: sticky;
+        position: fixed;
         bottom: 0;
         width: 100%;
-        padding: 1.5rem;
+        padding: 0.75rem 1rem;
         background-color: #1e1e1e;
         border-top: 1px solid #333;
         box-shadow: 0 -2px 8px rgba(0, 0, 0, 0.3);
+        z-index: 10;
 
         .api-key-tip {
             margin-top: -0.5rem;
