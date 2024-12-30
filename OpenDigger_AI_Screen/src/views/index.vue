@@ -40,7 +40,7 @@
                                     background-color: #4693eb;
                                     width: 32px;
                                     height: 32px;
-                                    transform: skewX(-45deg)
+                                    transform: skewX(-45deg);
                                 "
                                 size="mini"
                                 circle
@@ -186,12 +186,16 @@
         <!-- 悬浮按钮 -->
         <el-button
             class="floating-button"
-            type="info"
+            type="primary"
             size="large"
             @click="$store.commit('setDrawerVisible', true)"
-            icon="el-icon-search"
             circle
         >
+            <img
+                src="@/assets/RepoAI_Logo.png"
+                style="width: 15px; height: 15px"
+                alt="RepoAI Logo"
+            />
         </el-button>
 
         <!-- 抽屉组件 -->
