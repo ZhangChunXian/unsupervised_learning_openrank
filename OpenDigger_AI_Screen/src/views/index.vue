@@ -150,7 +150,7 @@
             class="floating-button"
             type="info"
             size="large"
-            @click="drawerVisible = true"
+            @click="$store.commit('setDrawerVisible', true)"
             icon="el-icon-search"
             circle
         >
@@ -158,7 +158,7 @@
 
         <!-- 抽屉组件 -->
         <el-drawer
-            :visible.sync="drawerVisible"
+            :visible.sync="$store.state.drawerVisible"
             size="30%"
             direction="rtl"
             :close-on-click-modal="true"
@@ -168,7 +168,7 @@
                 class="drawer-close-btn"
                 type="text"
                 icon="el-icon-close"
-                @click="drawerVisible = false"
+                @click="$store.commit('setDrawerVisible', false)"
                 circle
             />
             <repoAI></repoAI>
@@ -204,7 +204,6 @@ export default {
             value: "",
             state1: "",
             repositories: [],
-            drawerVisible: false, // 控制抽屉是否显示
         };
     },
     components: {

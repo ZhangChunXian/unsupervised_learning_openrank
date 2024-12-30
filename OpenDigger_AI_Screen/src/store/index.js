@@ -1229,7 +1229,8 @@ export default new Vuex.Store({
         }
       ]
     },
-    bottomLeftData: {}
+    bottomLeftData: {},
+    drawerVisible: false,
   },
   mutations: {
     setCurrentRepository(state, repository) {
@@ -1240,7 +1241,10 @@ export default new Vuex.Store({
     },
     setLanguages(state, languages) {
       state.languages = languages;
-    }
+    },
+    setDrawerVisible(state, visible) {  // 添加这个 mutation
+      state.drawerVisible = visible
+    },
   },
   actions: {},
   modules: {}
