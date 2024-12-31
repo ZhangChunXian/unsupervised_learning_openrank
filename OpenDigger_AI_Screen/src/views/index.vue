@@ -11,7 +11,9 @@
                             :color="decorationColor"
                         />
                         <div class="title">
-                            <span class="title-text">OpenDigger可视化大屏</span>
+                            <span class="title-text"
+                                >OpenDigger AI可视化大屏</span
+                            >
                             <dv-decoration-6
                                 class="dv-dec-6"
                                 :reverse="true"
@@ -33,6 +35,23 @@
                         <div class="react-left ml-4 react-l-s">
                             <span class="react-left"></span>
                             <span class="text">作者: 张春贤</span>
+                            <el-button
+                                style="
+                                    background-color: #4693eb;
+                                    width: 32px;
+                                    height: 32px;
+                                    transform: skewX(-45deg)
+                                "
+                                size="mini"
+                                circle
+                                @click="handleIntroduceMyselfClick"
+                            >
+                                <img
+                                    src="@/assets/RepoAI_Logo.png"
+                                    style="width: 15px; height: 15px"
+                                    alt="RepoAI Logo"
+                                />
+                            </el-button>
                         </div>
                         <div class="react-left ml-3">
                             <span class="text"
@@ -321,9 +340,12 @@ export default {
 
         handleRepoAIClick() {
             this.$store.commit("setDrawerVisible", true);
-            let message = `该项目为https://github.com/${
-                this.$store.state.currentRepository
-            }，请给不了解该项目的用户详细介绍该项目`;
+            let message = `该项目为https://github.com/${this.$store.state.currentRepository}，请给不了解该项目的用户详细介绍该项目`;
+            this.$store.dispatch("sendChatMessage", message);
+        },
+        handleIntroduceMyselfClick() {
+            this.$store.commit("setDrawerVisible", true);
+            let message = `这是RepoAI的作者张春贤, 来自华东师范大学数据科学与工程学院, Github主页为https://github.com/ZhangChunXian, 请介绍作者, 并对用户表示欢迎`;
             this.$store.dispatch("sendChatMessage", message);
         },
     },
@@ -401,6 +423,40 @@ export default {
 
     &:hover {
         color: #fff;
+    }
+}
+
+.react-left {
+    &.react-l-s {
+        width: 700px;
+        text-align: left;
+        display: flex;
+        align-items: center;
+    }
+    font-size: 18px;
+    width: 500px;
+    height: 50px;
+    line-height: 50px;
+    text-align: center;
+    transform: skewX(45deg);
+    background-color: #0f1325;
+
+    .react-left {
+        position: absolute;
+        left: -25px;
+        top: 0;
+        height: 50px;
+        width: 50px;
+        background-color: #0f1325;
+        transform: skewX(-45deg);
+    }
+
+    .text {
+        display: inline-block;
+        transform: skewX(-45deg);
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
     }
 }
 </style>
