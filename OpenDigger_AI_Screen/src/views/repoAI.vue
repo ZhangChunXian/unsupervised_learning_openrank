@@ -1,9 +1,9 @@
 <template>
     <div class="home">
         <div class="header">
-            <div class="title">ChatGPT</div>
+            <div class="title">RepoAI</div>
             <div class="subtitle">
-                基于 OpenAI 的 ChatGPT 自然语言模型人工智能对话
+                基于大模型与RAG技术的仓库分析助手
             </div>
             <!-- <div class="settings" @click="clickConfig()">
         设置
@@ -75,7 +75,7 @@ export default {
             isTalking: false,
             messageContent: "",
             decoder: new TextDecoder("utf-8"),
-            roleAlias: { user: "ME", assistant: "ChatGPT", system: "System" },
+            roleAlias: { user: "ME", assistant: "RepoAI", system: "System" },
             messageList: [
                 {
                     role: "system",
@@ -84,15 +84,19 @@ export default {
                 },
                 {
                     role: "assistant",
-                    content: `你好，我是AI语言模型，我可以提供一些常用服务和信息，例如：
+                    content: `你好，我是基于大模型和RAG的仓库分析助手，我可以提供以下常用服务和功能，例如：
 
-1. 翻译：我可以把中文翻译成英文，英文翻译成中文，还有其他一些语言翻译，比如法语、日语、西班牙语等。
+1. 代码解析与解读：我可以帮助你快速理解代码仓库的结构、功能模块和关键代码逻辑，并生成详尽的文档或摘要。
 
-2. 咨询服务：如果你有任何问题需要咨询，例如健康、法律、投资等方面，我可以尽可能为你提供帮助。
+2. 知识检索：通过RAG（检索增强生成）技术，我能够从仓库中提取有价值的信息，例如API文档、注释、历史变更记录等，帮助你快速找到所需内容。
 
-3. 闲聊：如果你感到寂寞或无聊，我们可以聊一些有趣的话题，以减轻你的压力。
+3. 问题诊断与优化建议：如果你在仓库中遇到性能问题、代码错误或技术难题，我可以分析代码并提供解决方案或优化建议。
 
-请告诉我你需要哪方面的帮助，我会根据你的需求给你提供相应的信息和建议。`,
+4. 版本控制与协作分析：我可以解析Git历史记录，帮助你了解代码变更的背景、贡献者和协作模式，为团队管理提供支持。
+
+3. 闲聊与指导：如果你在开发过程中感到困惑或需要技术支持，我们可以聊聊与你的项目相关的内容，我会尽量为你提供清晰的指导和帮助。
+
+请告诉我你需要哪方面的帮助，我会根据你的需求给出最合适的分析和建议！`,
                 },
             ],
         };
@@ -262,6 +266,8 @@ export default {
     display: flex;
     flex-direction: column;
     height: 100vh;
+    background-color: #121212;
+    color: #ffffff;
 
     .header {
         display: flex;
@@ -271,17 +277,20 @@ export default {
         align-items: baseline;
         top: 0;
         padding: 1rem 1.5rem;
-        background-color: #f3f4f6;
+        background-color: #1e1e1e;
+        border-bottom: 1px solid #333;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
 
         .title {
             font-size: 1.5rem;
             font-weight: bold;
+            color: #4a9eff;
         }
 
         .subtitle {
             margin-left: 1rem;
             font-size: 0.875rem;
-            color: #6b7280;
+            color: #888;
         }
 
         .settings {
@@ -290,9 +299,10 @@ export default {
             font-size: 0.875rem;
             cursor: pointer;
             border-radius: 0.375rem;
+            color: #000;
 
             &:hover {
-                background-color: white;
+                background-color: #333;
             }
         }
     }
@@ -302,37 +312,63 @@ export default {
         margin: 5rem 0.5rem 0.5rem;
 
         .message-item {
-            padding: 0.75rem 1rem;
+            padding: 1rem;
+            margin-bottom: 1rem;
             border-radius: 0.5rem;
+            background-color: #1e1e1e;
+            border: 1px solid #333;
+            transition: all 0.3s ease;
 
             &:hover {
-                background-color: #f8f9fa;
+                background-color: #252525;
+                border-color: #4a9eff;
+                box-shadow: 0 2px 12px rgba(74, 158, 255, 0.1);
             }
 
             .message-header {
                 display: flex;
                 justify-content: space-between;
                 align-items: center;
-                margin-bottom: 0.5rem;
+                margin-bottom: 0.75rem;
 
                 .role {
                     font-weight: bold;
+                    color: #4a9eff;
                 }
 
                 .copy-btn {
                     visibility: hidden;
+                    opacity: 0;
+                    transition: opacity 0.2s ease;
                 }
             }
 
             &:hover .copy-btn {
                 visibility: visible;
+                opacity: 1;
             }
 
             .message-content {
                 .content {
                     font-size: 0.875rem;
-                    color: #4b5563;
+                    color: #ddd;
                     line-height: 1.625;
+
+                    code {
+                        background-color: #2a2a2a;
+                        color: #4a9eff;
+                        padding: 0.2em 0.4em;
+                        border-radius: 3px;
+                    }
+
+                    pre {
+                        background-color: #2a2a2a !important;
+                        border: 1px solid #333 !important;
+                        border-radius: 6px;
+                        padding: 1em;
+                        margin: 1em 0;
+                        overflow-x: auto;
+                    }
                 }
             }
         }
@@ -343,68 +379,114 @@ export default {
         bottom: 0;
         width: 100%;
         padding: 1.5rem;
-        padding-bottom: 2rem;
-        background-color: #f3f4f6;
+        background-color: #1e1e1e;
+        border-top: 1px solid #333;
+        box-shadow: 0 -2px 8px rgba(0, 0, 0, 0.3);
 
         .api-key-tip {
             margin-top: -0.5rem;
             margin-bottom: 0.5rem;
             font-size: 0.875rem;
-            color: #6b7280;
+            color: #888;
         }
 
         .input-wrapper {
             display: flex;
+            gap: 0.75rem;
 
             .input {
                 flex-grow: 1;
-                padding: 0.5rem 1rem;
-                margin-right: 0.5rem;
-                color: #374151;
-                background-color: white;
-                border: 1px solid #d1d5db;
-                border-radius: 0.375rem;
+                padding: 0.75rem 1rem;
+                color: #fff;
+                background-color: #2a2a2a;
+                border: 1px solid #333;
+                border-radius: 0.5rem;
+                transition: all 0.3s ease;
 
                 &:focus {
                     outline: none;
-                    border-color: #60a5fa;
-                    box-shadow: 0 0 0 3px rgba(96, 165, 250, 0.2);
+                    border-color: #4a9eff;
+                    box-shadow: 0 0 0 3px rgba(74, 158, 255, 0.15);
+                    background-color: #252525;
+                }
+
+                &::placeholder {
+                    color: #666;
                 }
             }
 
             .send-btn {
-                padding: 0.5rem 1rem;
+                padding: 0.75rem 1.5rem;
                 font-size: 0.875rem;
                 font-weight: 500;
-                color: white;
-                background-color: #1d4ed8;
-                border-radius: 0.375rem;
-                white-space: nowrap;
-                transition: background-color 0.3s;
+                color: #fff;
+                background-color: #4a9eff;
+                border: none;
+                border-radius: 0.5rem;
+                cursor: pointer;
+                transition: all 0.3s ease;
 
                 &:hover {
-                    background-color: #2563eb;
+                    background-color: #3d8be6;
+                    transform: translateY(-1px);
+                    box-shadow: 0 2px 8px rgba(74, 158, 255, 0.3);
                 }
 
                 &:focus {
                     outline: none;
-                    background-color: #2563eb;
+                    box-shadow: 0 0 0 3px rgba(74, 158, 255, 0.2);
                 }
 
                 &:disabled {
-                    background-color: #93c5fd;
+                    background-color: #2d2d2d;
+                    color: #666;
+                    cursor: not-allowed;
+                    transform: none;
+                    box-shadow: none;
                 }
             }
         }
     }
 }
 
-pre {
-    font-family: -apple-system, "Noto Sans", "Helvetica Neue", Helvetica,
-        "Nimbus Sans L", Arial, "Liberation Sans", "PingFang SC",
-        "Hiragino Sans GB", "Noto Sans CJK SC", "Source Han Sans SC",
-        "Source Han Sans CN", "Microsoft YaHei", "Wenquanyi Micro Hei",
-        "WenQuanYi Zen Hei", "ST Heiti", SimHei, "WenQuanYi Zen Hei Sharp",
-        sans-serif;
+:deep(pre),
+:deep(code) {
+    font-family: 'Fira Code', Consolas, Monaco, 'Andale Mono', monospace;
+    background-color: #2a2a2a !important;
+    color: #ddd !important;
+    border: 1px solid #333 !important;
+}
+
+:deep(a) {
+    color: #4a9eff;
+    text-decoration: none;
+    
+    &:hover {
+        text-decoration: underline;
+    }
+}
+
+:deep(blockquote) {
+    border-left: 4px solid #4a9eff;
+    margin: 1em 0;
+    padding: 0.5em 1em;
+    background-color: #2a2a2a;
+    color: #ddd;
+}
+
+:deep(table) {
+    border-collapse: collapse;
+    width: 100%;
+    margin: 1em 0;
+    
+    th, td {
+        border: 1px solid #333;
+        padding: 0.5em;
+        background-color: #2a2a2a;
+    }
+    
+    th {
+        background-color: #252525;
+    }
 }
 </style>
