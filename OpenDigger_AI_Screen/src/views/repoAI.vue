@@ -1,28 +1,27 @@
 <template>
-    <div class="container">
+    <div class="home">
         <div class="header">
-            <div class="header__title">ChatGPT</div>
-            <div class="header__subtitle">
+            <div class="title">ChatGPT</div>
+            <div class="subtitle">
                 基于 OpenAI 的 ChatGPT 自然语言模型人工智能对话
             </div>
-            <!-- <div class="header__config" @click="clickConfig">设置</div> -->
+            <!-- <div class="settings" @click="clickConfig()">
+        设置
+      </div> -->
         </div>
 
         <div class="chat-list" ref="chatListDom">
             <div
                 class="message-item"
-                v-for="item in filteredMessages"
-                :key="item.content"
+                v-for="item in messageList.filter((v) => v.role !== 'system')"
             >
-                <div class="message-item__header">
-                    <div class="message-item__role">
-                        {{ roleAlias[item.role] }}：
-                    </div>
-                    <Copy class="message-item__copy" :content="item.content" />
+                <div class="message-header">
+                    <div class="role">{{ roleAlias[item.role] }}：</div>
+                    <Copy class="copy-btn" :content="item.content" />
                 </div>
-                <div class="message-item__content">
+                <div class="message-content">
                     <div
-                        class="markdown-content"
+                        class="content"
                         v-if="item.content"
                         v-html="md.render(item.content)"
                     ></div>
@@ -32,21 +31,21 @@
         </div>
 
         <div class="input-area">
-            <!-- <div class="input-area__hint" v-if="isConfig">
+            <!-- <div class="api-key-tip" v-if="isConfig">
         请输入 API Key：
       </div> -->
-            <div class="input-area__container">
+            <div class="input-wrapper">
                 <input
-                    class="input-area__input"
+                    class="input"
                     :type="isConfig ? 'password' : 'text'"
                     :placeholder="isConfig ? 'sk-xxxxxxxxxx' : '请输入'"
                     v-model="messageContent"
-                    @keydown.enter="!isTalking && sendOrSave()"
+                    @keydown.enter="isTalking || sendOrSave()"
                 />
                 <button
-                    class="input-area__button"
+                    class="send-btn"
                     :disabled="isTalking"
-                    @click="sendOrSave"
+                    @click="sendOrSave()"
                 >
                     {{ isConfig ? "保存" : "发送" }}
                 </button>
@@ -58,17 +57,19 @@
 <script>
 import { chat } from "../utils/gpt";
 import cryptoJS from "crypto-js";
-import Loading from "../components/repoAI/Loading.vue";
+import Loding from "../components/repoAI/Loading.vue";
 import Copy from "../components/repoAI/Copy.vue";
 import { md } from "../utils/markdown";
 
 export default {
+    name: "Home",
     components: {
-        Loading,
+        Loding,
         Copy,
     },
     data() {
         return {
+            md,
             apiKey: "sk-kimDNLus4PpfufGKy23OTq2njyTQIaAtBsH3winVYZGgYQQ6",
             isConfig: true,
             isTalking: false,
@@ -83,26 +84,23 @@ export default {
                 },
                 {
                     role: "assistant",
-                    content: `你好，我是AI语言模型...`, // 保持原有的欢迎信息
+                    content: `你好，我是AI语言模型，我可以提供一些常用服务和信息，例如：
+
+1. 翻译：我可以把中文翻译成英文，英文翻译成中文，还有其他一些语言翻译，比如法语、日语、西班牙语等。
+
+2. 咨询服务：如果你有任何问题需要咨询，例如健康、法律、投资等方面，我可以尽可能为你提供帮助。
+
+3. 闲聊：如果你感到寂寞或无聊，我们可以聊一些有趣的话题，以减轻你的压力。
+
+请告诉我你需要哪方面的帮助，我会根据你的需求给你提供相应的信息和建议。`,
                 },
             ],
         };
     },
     computed: {
-        filteredMessages() {
+        filteredMessageList() {
             return this.messageList.filter((v) => v.role !== "system");
         },
-    },
-    // ... 其余方法保持不变，只需要把 const 改为 methods 中的方法
-    methods: {
-        sendChatMessage(content) {
-            content = content || this.messageContent;
-            // 方法实现保持不变...
-        },
-        readStream(reader, status) {
-            // 方法实现保持不变...
-        },
-        // ... 其他方法
     },
     mounted() {
         if (this.getAPIKey()) {
@@ -112,133 +110,291 @@ export default {
     watch: {
         messageList: {
             handler() {
-                this.$nextTick(() => {
-                    this.scrollToBottom();
-                });
+                this.$nextTick(() => this.scrollToBottom());
             },
             deep: true,
+        },
+    },
+    methods: {
+        async sendChatMessage(content) {
+            try {
+                this.isTalking = true;
+                const messageContent = content || this.messageContent;
+
+                if (this.messageList.length === 2) {
+                    this.messageList.pop();
+                }
+                this.messageList.push({
+                    role: "user",
+                    content: messageContent,
+                });
+                this.clearMessageContent();
+                this.messageList.push({ role: "assistant", content: "" });
+
+                const { body, status } = await chat(
+                    this.messageList,
+                    this.getAPIKey()
+                );
+                if (body) {
+                    const reader = body.getReader();
+                    await this.readStream(reader, status);
+                }
+            } catch (error) {
+                this.appendLastMessageContent(error);
+            } finally {
+                this.isTalking = false;
+            }
+        },
+
+        async readStream(reader, status) {
+            let partialLine = "";
+
+            while (true) {
+                const { value, done } = await reader.read();
+                if (done) break;
+
+                const decodedText = this.decoder.decode(value, {
+                    stream: true,
+                });
+
+                if (status !== 200) {
+                    const json = JSON.parse(decodedText);
+                    const content = json.error.message ?? decodedText;
+                    this.appendLastMessageContent(content);
+                    return;
+                }
+
+                const chunk = partialLine + decodedText;
+                const newLines = chunk.split(/\r?\n/);
+
+                partialLine = newLines.pop() ?? "";
+
+                for (const line of newLines) {
+                    if (line.length === 0) continue;
+                    if (line.startsWith(":")) continue;
+                    if (line === "data: [DONE]") return;
+
+                    const json = JSON.parse(line.substring(6));
+                    const content =
+                        status === 200
+                            ? json.choices[0].delta.content ?? ""
+                            : json.error.message;
+                    this.appendLastMessageContent(content);
+                }
+            }
+        },
+
+        appendLastMessageContent(content) {
+            const lastMessage = this.messageList[this.messageList.length - 1];
+            this.$set(lastMessage, "content", lastMessage.content + content);
+        },
+
+        sendOrSave() {
+            if (!this.messageContent.length) return;
+            if (this.isConfig) {
+                if (this.saveAPIKey(this.messageContent.trim())) {
+                    this.switchConfigStatus();
+                }
+                this.clearMessageContent();
+            } else {
+                this.sendChatMessage();
+            }
+        },
+
+        clickConfig() {
+            if (!this.isConfig) {
+                this.messageContent = this.getAPIKey();
+            } else {
+                this.clearMessageContent();
+            }
+            this.switchConfigStatus();
+        },
+
+        getSecretKey() {
+            return "lianginx";
+        },
+
+        saveAPIKey(apiKey) {
+            if (apiKey.slice(0, 3) !== "sk-" || apiKey.length !== 51) {
+                alert("API Key 错误，请检查后重新输入！");
+                return false;
+            }
+            const aesAPIKey = cryptoJS.AES.encrypt(
+                apiKey,
+                this.getSecretKey()
+            ).toString();
+            localStorage.setItem("apiKey", aesAPIKey);
+            return true;
+        },
+
+        getAPIKey() {
+            if (this.apiKey) return this.apiKey;
+            const aesAPIKey = localStorage.getItem("apiKey") ?? "";
+            this.apiKey = cryptoJS.AES.decrypt(
+                aesAPIKey,
+                this.getSecretKey()
+            ).toString(cryptoJS.enc.Utf8);
+            return this.apiKey;
+        },
+
+        switchConfigStatus() {
+            this.isConfig = !this.isConfig;
+        },
+
+        clearMessageContent() {
+            this.messageContent = "";
+        },
+
+        scrollToBottom() {
+            if (!this.$refs.chatListDom) return;
+            window.scrollTo(0, this.$refs.chatListDom.scrollHeight);
+        },
+
+        renderedContent(content) {
+            return md.render(content);
         },
     },
 };
 </script>
 
 <style lang="scss" scoped>
-.container {
+.home {
     display: flex;
     flex-direction: column;
     height: 100vh;
-}
 
-.header {
-    position: fixed;
-    width: 100%;
-    top: 0;
-    display: flex;
-    flex-wrap: nowrap;
-    align-items: baseline;
-    padding: 1rem 1.5rem;
-    background-color: #f3f4f6;
-
-    &__title {
-        font-size: 1.5rem;
-        font-weight: bold;
-    }
-
-    &__subtitle {
-        margin-left: 1rem;
-        font-size: 0.875rem;
-        color: #6b7280;
-    }
-
-    &__config {
-        margin-left: auto;
-        padding: 0.5rem 0.75rem;
-        font-size: 0.875rem;
-        cursor: pointer;
-        border-radius: 0.375rem;
-
-        &:hover {
-            background-color: white;
-        }
-    }
-}
-
-.chat-list {
-    flex: 1;
-    margin: 5rem 0.5rem 0.5rem;
-}
-
-.message-item {
-    padding: 0.75rem 1rem;
-    border-radius: 0.5rem;
-
-    &:hover {
-        background-color: #f8fafc;
-    }
-
-    &__header {
+    .header {
         display: flex;
-        justify-content: space-between;
-        align-items: center;
-        margin-bottom: 0.5rem;
-    }
+        flex-wrap: nowrap;
+        position: fixed;
+        width: 100%;
+        align-items: baseline;
+        top: 0;
+        padding: 1rem 1.5rem;
+        background-color: #f3f4f6;
 
-    &__role {
-        font-weight: bold;
-    }
+        .title {
+            font-size: 1.5rem;
+            font-weight: bold;
+        }
 
-    &__copy {
-        visibility: hidden;
-        .message-item:hover & {
-            visibility: visible;
+        .subtitle {
+            margin-left: 1rem;
+            font-size: 0.875rem;
+            color: #6b7280;
+        }
+
+        .settings {
+            margin-left: auto;
+            padding: 0.5rem 0.75rem;
+            font-size: 0.875rem;
+            cursor: pointer;
+            border-radius: 0.375rem;
+
+            &:hover {
+                background-color: white;
+            }
         }
     }
 
-    &__content {
-        font-size: 0.875rem;
-        color: #475569;
-        line-height: 1.75;
-    }
-}
-
-.input-area {
-    position: sticky;
-    bottom: 0;
-    width: 100%;
-    padding: 1.5rem;
-    padding-bottom: 2rem;
-    background-color: #f3f4f6;
-
-    &__container {
-        display: flex;
-    }
-
-    &__input {
+    .chat-list {
         flex: 1;
-        padding: 0.75rem;
-        border: 1px solid #e5e7eb;
-        border-radius: 0.375rem;
-        margin-right: 0.5rem;
+        margin: 5rem 0.5rem 0.5rem;
 
-        &:focus {
-            outline: none;
-            border-color: #3b82f6;
+        .message-item {
+            padding: 0.75rem 1rem;
+            border-radius: 0.5rem;
+
+            &:hover {
+                background-color: #f8f9fa;
+            }
+
+            .message-header {
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                margin-bottom: 0.5rem;
+
+                .role {
+                    font-weight: bold;
+                }
+
+                .copy-btn {
+                    visibility: hidden;
+                }
+            }
+
+            &:hover .copy-btn {
+                visibility: visible;
+            }
+
+            .message-content {
+                .content {
+                    font-size: 0.875rem;
+                    color: #4b5563;
+                    line-height: 1.625;
+                }
+            }
         }
     }
 
-    &__button {
-        padding: 0.75rem 1.5rem;
-        background-color: #3b82f6;
-        color: white;
-        border-radius: 0.375rem;
+    .input-area {
+        position: sticky;
+        bottom: 0;
+        width: 100%;
+        padding: 1.5rem;
+        padding-bottom: 2rem;
+        background-color: #f3f4f6;
 
-        &:disabled {
-            opacity: 0.5;
-            cursor: not-allowed;
+        .api-key-tip {
+            margin-top: -0.5rem;
+            margin-bottom: 0.5rem;
+            font-size: 0.875rem;
+            color: #6b7280;
         }
 
-        &:not(:disabled):hover {
-            background-color: #2563eb;
+        .input-wrapper {
+            display: flex;
+
+            .input {
+                flex-grow: 1;
+                padding: 0.5rem 1rem;
+                margin-right: 0.5rem;
+                color: #374151;
+                background-color: white;
+                border: 1px solid #d1d5db;
+                border-radius: 0.375rem;
+
+                &:focus {
+                    outline: none;
+                    border-color: #60a5fa;
+                    box-shadow: 0 0 0 3px rgba(96, 165, 250, 0.2);
+                }
+            }
+
+            .send-btn {
+                padding: 0.5rem 1rem;
+                font-size: 0.875rem;
+                font-weight: 500;
+                color: white;
+                background-color: #1d4ed8;
+                border-radius: 0.375rem;
+                white-space: nowrap;
+                transition: background-color 0.3s;
+
+                &:hover {
+                    background-color: #2563eb;
+                }
+
+                &:focus {
+                    outline: none;
+                    background-color: #2563eb;
+                }
+
+                &:disabled {
+                    background-color: #93c5fd;
+                }
+            }
         }
     }
 }

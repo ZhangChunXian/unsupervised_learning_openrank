@@ -208,6 +208,7 @@ export default {
         center,
         bottomLeft,
         bottomRight,
+        repoAI
     },
     mounted() {
         this.timeFn();
