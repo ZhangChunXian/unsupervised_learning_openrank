@@ -103,9 +103,9 @@ export default {
         };
     },
     computed: {
-        filteredMessageList() {
-            return this.messageList.filter((v) => v.role !== "system");
-        },
+        // filteredMessageList() {
+        //     return this.messageList.filter((v) => v.role !== "system");
+        // },
     },
     mounted() {
         if (this.getAPIKey()) {
@@ -409,7 +409,7 @@ export default {
         bottom: 0;
         left: 0;
         width: 100%;
-        padding: 1rem;
+        padding: 0.75rem 1rem;
         background-color: #1e1e1e;
         border-top: 1px solid #333;
         box-shadow: 0 -2px 8px rgba(0, 0, 0, 0.3);
@@ -425,8 +425,6 @@ export default {
         .input-wrapper {
             display: flex;
             gap: 0.75rem;
-            max-width: 98%;
-            margin: 0 auto;
 
             .input {
                 flex-grow: 1;

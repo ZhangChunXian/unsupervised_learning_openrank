@@ -2102,7 +2102,8 @@ export default {
   components: {
     CenterRight2Chart,
   },
-  mounted () {
+  mounted() {
+    this.$emit('update-cdata', this.cdata);
   },
   methods: {
   },
