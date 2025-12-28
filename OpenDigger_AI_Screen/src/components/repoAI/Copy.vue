@@ -1,58 +1,81 @@
-<script setup lang="ts">
-import { Copy, Loading, CheckOne } from "@icon-park/vue-next";
-import type { Theme } from "@icon-park/vue-next/lib/runtime";
-import { ref } from "vue";
+<script>
+import { Copy as IconCopy, Loading as IconLoading, CheckOne as IconCheckOne, CloseOne as IconCloseOne } from "@icon-park/vue";
 
-const porps = defineProps<{ content: string }>();
-const btnConfig: {
-    size: number;
-    fill: string;
-    theme: Theme;
-} = {
-    size: 14,
-    fill: "#999",
-    theme: "outline",
-};
-const btnTips = {
-    copy: "复制全文",
-    loading: "",
-    success: "已复制到剪贴板！",
-    error: "复制失败！",
-};
-const btnStatus = ref<"copy" | "loading" | "success" | "error">("copy");
-
-const copyToClipboard = (content = porps.content) => {
-    btnStatus.value = "loading";
-    navigator.clipboard
-        .writeText(content)
-        .then(() => setTimeout(() => (btnStatus.value = "success"), 150))
-        .catch(() => (btnStatus.value = "error"))
-        .finally(() => setTimeout(() => (btnStatus.value = "copy"), 1500));
-};
+export default {
+    name: 'Copy',
+    components: {
+        IconCopy,
+        IconLoading,
+        IconCheckOne,
+        IconCloseOne
+    },
+    props: {
+        content: {
+            type: String,
+            required: true
+        }
+    },
+    data() {
+        return {
+            btnConfig: {
+                size: 14,
+                fill: "#999",
+                theme: "outline"
+            },
+            btnTips: {
+                copy: "复制全文",
+                loading: "",
+                success: "已复制到剪贴板！",
+                error: "复制失败！"
+            },
+            btnStatus: "copy"
+        }
+    },
+    methods: {
+        copyToClipboard() {
+            this.btnStatus = "loading";
+            navigator.clipboard
+                .writeText(this.content)
+                .then(() => {
+                    setTimeout(() => {
+                        this.btnStatus = "success"
+                    }, 150);
+                })
+                .catch(() => {
+                    this.btnStatus = "error";
+                })
+                .finally(() => {
+                    setTimeout(() => {
+                        this.btnStatus = "copy"
+                    }, 1500);
+                });
+        }
+    }
+}
 </script>
 
 <template>
-    <div class="flex items-center cursor-pointer" @click="copyToClipboard()">
-        <copy
+    <div class="flex items-center cursor-pointer" @click="copyToClipboard">
+        <icon-copy
             v-show="btnStatus === 'copy'"
             :theme="btnConfig.theme"
             :size="btnConfig.size"
             :fill="btnConfig.fill"
         />
-        <loading
+        <icon-loading
             class="rotate"
             v-show="btnStatus === 'loading'"
             :theme="btnConfig.theme"
             :size="btnConfig.size"
             :fill="btnConfig.fill"
         />
-        <check-one
+        <icon-check-one
             v-show="btnStatus === 'success'"
             :theme="btnConfig.theme"
             :size="btnConfig.size"
             :fill="btnConfig.fill"
         />
-        <close-one
+        <icon-close-one
             v-show="btnStatus === 'error'"
             :theme="btnConfig.theme"
             :size="btnConfig.size"

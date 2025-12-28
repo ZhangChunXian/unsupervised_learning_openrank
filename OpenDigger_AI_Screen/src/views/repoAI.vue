@@ -56,16 +56,15 @@
 </template>
 
 <script>
-import { chat } from "@/libs/gpt";
+import { chat } from "../utils/gpt";
 import cryptoJS from "crypto-js";
-import Loding from "@/components/Loding.vue";
-import Copy from "@/components/Copy.vue";
-import { md } from "@/libs/markdown";
+import Loading from "../components/repoAI/Loading.vue";
+import Copy from "../components/repoAI/Copy.vue";
+import { md } from "../utils/markdown";
 
 export default {
-    name: "Home",
     components: {
-        Loding,
+        Loading,
         Copy,
     },
     data() {

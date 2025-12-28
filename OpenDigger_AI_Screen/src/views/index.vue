@@ -158,14 +158,13 @@
 
         <!-- 抽屉组件 -->
         <el-drawer
-            title="这是一个右侧抽屉"
             :visible.sync="drawerVisible"
             size="30%"
             direction="rtl"
             :before-close="handleClose"
             :close-on-click-modal="true"
         >
-            <p>这里是抽屉的内容区域，可以放置任何内容。</p>
+            <repoAI></repoAI>
         </el-drawer>
     </div>
 </template>
@@ -181,6 +180,7 @@ import center from "./center";
 import bottomLeft from "./bottomLeft";
 import bottomRight from "./bottomRight";
 import axios from "axios";
+import repoAI from "./repoAI";
 
 export default {
     mixins: [drawMixin],

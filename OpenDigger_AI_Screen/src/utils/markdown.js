@@ -1,7 +1,7 @@
 import Markdown from "markdown-it";
 import highlight from "highlight.js";
 
-const mdOptions: Markdown.Options = {
+const mdOptions = {
     linkify: true,
     typographer: true,
     breaks: true,
